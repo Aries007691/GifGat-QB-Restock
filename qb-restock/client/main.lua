@@ -145,6 +145,7 @@ RegisterNetEvent('cardealer:client:buycar', function(vehicle)
         end
         purchasedvehicle = plate
         TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys',plate)
+        TriggerServerEvent('qb-stock:server:discord')
     end)
 
 
@@ -242,3 +243,4 @@ RegisterCommand('checkstock', function()
         end
     end)
 end)
+
