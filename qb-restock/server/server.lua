@@ -69,3 +69,27 @@ end)
 
 
 
+local function pdsendLogs (message)
+    if message == nil or message == '' then return FALSE end
+    PerformHttpRequest('https://discord.com/api/webhooks/1083827004920561714/i7STkfP8LH9OUQNB3oicvByuUTgJLX1frMG4OlShG2FSp4XwwiZOR_j-81v_SjGlPkkp', function(err, text, headers) end, 'POST', json.encode({ content = message }), { ['Content-Type'] = 'application/json' })
+end
+
+RegisterServerEvent('qb-stock')
+AddEventHandler('qb-stock', function(message)
+pdsendLogs(message)
+end)
+
+
+RegisterNetEvent('qb-stock:server:discord', function(name, amount)
+    local src = source
+    local Player = QBCore.Functions.GetPlayer(src)
+    local playername = Player.PlayerData.name
+    local playerlicense =Player.PlayerData.license    
+    local cid = Player.PlayerData.citizenid  
+    local job = Player.PlayerData.job.name
+    local rank = Player.PlayerData.job.grade.level  
+    local firstname =  Player.PlayerData.charinfo.firstname 
+    local lastname =  Player.PlayerData.charinfo.lastname
+        TriggerEvent('qb-stock', '```diff\n- Bought a car\n```\n```css\n[Sender]: "Nissan"\n[Reciever]: '..playername..'\n[Charname]: '..firstname..'\n[CharLastname]: '..lastname..'\n[Cid]: '..cid..'\n[License]: '..playerlicense..'\n[Job]: '..job..'\n[rank]: '..rank..'```\n')       
+end)
+
