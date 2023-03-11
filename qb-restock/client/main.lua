@@ -21,23 +21,23 @@ exports['qb-target']:AddBoxZone("BuyVehicle", vector3(-9.96, -1078.14, 26.67), 0
 	options = {
 		{
             type = "client",
-            event = "cardealers:client:openmenu",
+            event = "qb-restock:client:openmenu",
 			icon = "fas fa-sign-in-alt",
 			label = "Buy Vehicle",
- 			job = "cardealer",
+ 			job = "qb-restock",
 		},
 	},
 	distance = 2.5
 })
 
-RegisterNetEvent('cardealers:client:openmenu', function()
+RegisterNetEvent('qb-restock:client:openmenu', function()
     local categomenu = {}
     local categmenu = {
         {
             header = ('Catagories'),
             icon = "fa-solid fa-angle-left",
             params = {
-                event = 'cardealers:client:homeMenu'
+                event = 'qb-restock:client:homeMenu'
             }
         }
     }
@@ -57,7 +57,7 @@ RegisterNetEvent('cardealers:client:openmenu', function()
             header = k,
             icon = "fa-solid fa-circle",
             params = {
-                event = 'cardealers:client:openVehCats',
+                event = 'qb-restock:client:openVehCats',
                 args = {
                     catName = k
                 }
@@ -67,13 +67,13 @@ RegisterNetEvent('cardealers:client:openmenu', function()
     exports['qb-menu']:openMenu(categmenu)
 end)
 
-RegisterNetEvent('cardealers:client:openVehCats', function(data)
+RegisterNetEvent('qb-restock:client:openVehCats', function(data)
     local carMenu = {
         {
             header = ('Close'),
             icon = "fa-solid fa-angle-left",
             params = {
-                event = 'cardealers:client:vehCategories'
+                event = 'qb-restock:client:vehCategories'
             }
         }
     }
@@ -85,7 +85,7 @@ RegisterNetEvent('cardealers:client:openVehCats', function(data)
                     icon = "fa-solid fa-car-side",
                     params = {
                         isServer = true,
-                        event = "cardealer:server:removemony",
+                        event = "qb-restock:server:removemony",
                         args = {
                             price = v.price,
                             vehicle = v.model,
@@ -97,7 +97,7 @@ RegisterNetEvent('cardealers:client:openVehCats', function(data)
     exports['qb-menu']:openMenu(carMenu)
 end)
 
-RegisterNetEvent('car:client:create_blip', function(vehicle)
+RegisterNetEvent('qb-restock:client:create_blip', function(vehicle)
     onmission = true
     ccarid = k
     local coords = Config.pickupblip
@@ -112,15 +112,15 @@ RegisterNetEvent('car:client:create_blip', function(vehicle)
         SetBlipRoute(pickupblip, true)
     ondelivery = true
     plate = splate
-    TriggerEvent("cardealer:client:buycar", vehicle)
-    TriggerEvent("car:client:checkdistance")
+    TriggerEvent("qb-restock:client:buycar", vehicle)
+    TriggerEvent("qb-restock:client:checkdistance")
    
 end)
 
 
 local spawnedcar = nil
 
-RegisterNetEvent('cardealer:client:buycar', function(vehicle)
+RegisterNetEvent('qb-restock:client:buycar', function(vehicle)
     RequestModel(vehicle)
     while not HasModelLoaded(vehicle) do
         Wait(1)
@@ -145,17 +145,16 @@ RegisterNetEvent('cardealer:client:buycar', function(vehicle)
         end
         purchasedvehicle = plate
         TriggerServerEvent('qb-vehiclekeys:server:AcquireVehicleKeys',plate)
-        TriggerServerEvent('qb-stock:server:discord')
     end)
 
 
 
-RegisterNetEvent('cardealer:client:removeblip', function(data)
+RegisterNetEvent('qb-restock:client:removeblip', function(data)
     RemoveBlip(pickupblip)
     pickupblip = nil
 end)
 
-RegisterNetEvent('cardealer:client:removedeleveryblip', function(data)
+RegisterNetEvent('qb-restock:client:removedeleveryblip', function(data)
     RemoveBlip(deliveryBlip)
     deliveryBlip = nil
 end)
@@ -163,14 +162,14 @@ end)
 
 ------------ vehicle pickup
 CreateThread(function()
-    RegisterNetEvent('car:client:checkdistance', function(coords, k)
+    RegisterNetEvent('qb-restock:client:checkdistance', function(coords, k)
         while ondelivery do
             Citizen.Wait(1)
             local pos = GetEntityCoords(PlayerPedId(), true)
             local coords = Config.pickupblip
             if #(pos - vector3(coords.x,coords.y,coords.z)) < 5 then
-                TriggerEvent('cardealer:client:removeblip')
-                TriggerEvent('car:client:create_delevery_blip', k)
+                TriggerEvent('qb-restock:client:removeblip')
+                TriggerEvent('qb-restock:client:create_delevery_blip', k)
                 ondelivery = false
                 dropoff = true
                 break
@@ -182,7 +181,7 @@ end)
 
 ------------ Blip for delevery 
 CreateThread(function()
-    RegisterNetEvent('car:client:checkdeleverydistance', function(coords, vehicle)
+    RegisterNetEvent('qb-restock:client:checkdeleverydistance', function(coords, vehicle)
         while true do
             Citizen.Wait(1)
             veh = GetVehiclePedIsIn(PlayerPedId())
@@ -190,10 +189,10 @@ CreateThread(function()
             if #(pos - vector3(coords.x, coords.y, coords.z)) < 5 then
                 if IsPedInAnyVehicle(PlayerPedId()) then
                     if GetVehicleNumberPlateText(GetVehiclePedIsIn(PlayerPedId())) == purchasedvehicle then
-                        TriggerEvent('cardealer:client:removedeleveryblip')
+                        TriggerEvent('qb-restock:client:removedeleveryblip')
                         ondelivery = false
                         dropoff = true
-                        TriggerEvent('cardealer:client:addtostock', data, vehicle, svehicle)
+                        TriggerEvent('qb-restock:client:addtostock', data, vehicle, svehicle)
                         break
                     else
                         print("TRIED TO EXPLOIT")
@@ -205,7 +204,7 @@ CreateThread(function()
 end)
 
 
-RegisterNetEvent('car:client:create_delevery_blip', function(k)
+RegisterNetEvent('qb-restock:client:create_delevery_blip', function(k)
     onmission = true
     ccarid = k
     local coords = Config.deliveryblip
@@ -221,15 +220,15 @@ RegisterNetEvent('car:client:create_delevery_blip', function(k)
     ondelivery = true
     plate = splate
     svehicle = vehicle
-    TriggerEvent('car:client:checkdeleverydistance',coords, k)
+    TriggerEvent('qb-restock:client:checkdeleverydistance',coords, k)
 end)
 
 
 
-RegisterNetEvent('cardealer:client:addtostock', function(data, vehicle, svehicle)
+RegisterNetEvent('qb-restock:client:addtostock', function(data, vehicle, svehicle)
     local vehicle = GetVehiclePedIsIn(PlayerPedId())
     DeleteVehicle(vehicle)
-    TriggerServerEvent('cardealer:owncar',data, spawnedcar, svehicle)
+    TriggerServerEvent('qb-restock:owncar',data, spawnedcar, svehicle)
 end)
 
 
@@ -243,4 +242,3 @@ RegisterCommand('checkstock', function()
         end
     end)
 end)
-
