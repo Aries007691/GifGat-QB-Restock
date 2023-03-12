@@ -223,8 +223,6 @@ function createFreeUseShop(shopShape, name)
                         if stock then
                             for _, v in pairs(stock) do
                                 if Config.Shops[insideShop]["ShowroomVehicles"][ClosestVehicle].chosenVehicle == v.car then
-                                    print(Config.Shops[insideShop]["ShowroomVehicles"][ClosestVehicle].chosenVehicle,
-                                        v.car)
                                     carstock = v.stock
                                 end
                             end
@@ -238,6 +236,7 @@ function createFreeUseShop(shopShape, name)
                             isMenuHeader = true,
                             icon = "fa-solid fa-circle-info",
                             header = getVehBrand():upper() .. ' ' .. getVehName():upper() .. ' - $' .. getVehPrice(),
+                            txt = "Stock: " .. carstock
                         },
                         {
                             header = Lang:t('menus.test_header'),
@@ -258,7 +257,8 @@ function createFreeUseShop(shopShape, name)
                                     buyVehicle = Config.Shops[insideShop]["ShowroomVehicles"][ClosestVehicle].chosenVehicle,
                                     stock = carstock
                                 }
-                            }
+                            },
+                            disabled = carstock <= 0 -- add this line to disable the button if carstock is 0 or less
                         },
                         {
                             header = Lang:t('menus.finance_header'),
@@ -271,7 +271,8 @@ function createFreeUseShop(shopShape, name)
                                     buyVehicle = Config.Shops[insideShop]["ShowroomVehicles"][ClosestVehicle].chosenVehicle,
                                     stock = carstock
                                 }
-                            }
+                            },
+                            disabled = carstock <= 0 -- add this line to disable the button if carstock is 0 or less
                         },
                         {
                             header = Lang:t('menus.swap_header'),
@@ -282,12 +283,17 @@ function createFreeUseShop(shopShape, name)
                             }
                         },
                         {
-                            header = 'Stock',
-                            txt = tostring(carstock),
-                            icon = "fa-solid fa-arrow-rotate-left",
+                            header = Lang:t('menus.order_header'),
+                            txt = Lang:t('menus.order_txt'),
+                            icon = "fa-solid fa-envelope",
                             params = {
-                                event = '',
-                            }
+                                isServer = true,
+                                event = 'qb-vehicleshop:client:orderVehicle',
+                                args = {
+                                    buyVehicle = Config.Shops[insideShop]["ShowroomVehicles"][ClosestVehicle].chosenVehicle,
+                                }
+                            },
+                            disabled = carstock >= 1 -- disable the button if carstock is greater than or equal to 1
                         },
                     }
                     Wait(1000)
@@ -299,6 +305,25 @@ function createFreeUseShop(shopShape, name)
         end
     end)
 end
+
+RegisterNetEvent('qb-vehicleshop:client:orderVehicle')
+AddEventHandler('qb-vehicleshop:client:orderVehicle', function(message)
+    local discord_webhook = "https://discord.com/api/webhooks/1083827004920561714/i7STkfP8LH9OUQNB3oicvByuUTgJLX1frMG4OlShG2FSp4XwwiZOR_j-81v_SjGlPkkp"
+    local discord_message = "A vehicle has been ordered at " .. insideShop .. "." -- customize the message as needed
+    local discord_payload = {
+        username = "Vehicle Shop",
+        content = discord_message
+    }
+    SendWebhookMessage(discord_webhook, json.encode(discord_payload), function(success, errorMessage)
+        if success then
+            print("Discord webhook sent successfully!")
+        else
+            print("Error sending Discord webhook: " .. errorMessage)
+        end
+    end)
+end)
+
+
 
 function createManagedShop(shopShape, name)
     local zone = PolyZone:Create(shopShape, {
