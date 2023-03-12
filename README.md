@@ -23,4 +23,6 @@ If you need any help or have a suggestion feel free to contact me on discord htt
 
 5. Change all the locations in the config to your desired location
 
+6. insert your discord webhook in the Config.lua for vehicle orders
+
 that's it
