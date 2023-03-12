@@ -1,3 +1,54 @@
+local QBCore = exports['qb-core']:GetCoreObject()
+
+RegisterServerEvent('qb-vehicleshop:client:orderVehicle')
+AddEventHandler('qb-vehicleshop:client:orderVehicle', function(vehicle)
+    local player = source
+    local closestVehicle = GetClosestVehicle(player)
+    vehicle = vehicle.buyVehicle
+    local webhookUrl = Config.WebhookUrl
+    local headers = { ['Content-Type'] = 'application/json' }
+    local data = {
+        ['content'] = 'A new vehicle has been ordered!',
+        ['embeds'] = {
+            {
+                ['title'] = 'New Vehicle Order',
+                ['description'] = 'Someone has ordered a new vehicle!',
+                ['color'] = 65280, -- Green color code
+                ['fields'] = {
+                    {
+                        ['name'] = 'Requested by',
+                        ['value'] = GetPlayerName(player),
+                        ['inline'] = true
+                    },
+                    {
+                        ['name'] = 'Vehicle Ordered',
+                        ['value'] = vehicle,
+                        ['inline'] = true
+                    }
+                }
+            }
+        }
+    }
+    PerformHttpRequest(webhookUrl, function(statusCode, response, headers) end, 'POST', json.encode(data), headers)
+end)
+
+function GetClosestVehicle(player)
+    local playerPed = GetPlayerPed(player)
+    local playerPos = GetEntityCoords(playerPed)
+    local vehicles = QBCore.Shared.Vehicles
+    local closestDistance = -1
+    local closestVehicle = nil
+    for i=1, #vehicles, 1 do
+        local vehiclePos = GetEntityCoords(vehicles[i])
+        local distance = #(vehiclePos - playerPos)
+        if closestDistance == -1 or distance < closestDistance then
+            closestDistance = distance
+            closestVehicle = vehicles[i]
+        end
+    end
+    return closestVehicle
+end
+
 -- Variables
 local QBCore = exports['qb-core']:GetCoreObject()
 local financetimer = {}
