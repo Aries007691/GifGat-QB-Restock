@@ -1,4 +1,9 @@
 Config = {}
+
+----------------webhook for car orders
+Config.WebhookUrl = 'YOUR DISCORD WEBHOOK HERE'
+-----------------------------------------------------------------------------
+
 Config.UsingTarget = GetConvar('UseTarget', 'false') == 'true'
 Config.Commission = 0.10 -- Percent that goes to sales person from a full car sale 10%
 Config.FinanceCommission = 0.05 -- Percent that goes to sales person from a finance sale 5%
